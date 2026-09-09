@@ -48,13 +48,6 @@ set_target_properties(xpdf_winui_native PROPERTIES
   VISIBILITY_INLINES_HIDDEN YES
 )
 
-install(TARGETS xpdf_winui_native
-  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-)
-install(FILES xpdf_winui_native.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-
 include(CTest)
 if (BUILD_TESTING)
   add_executable(xpdf_winui_native_tests tests/native_tests.cc)

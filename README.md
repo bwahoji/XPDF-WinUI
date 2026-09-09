@@ -20,7 +20,7 @@ Xpdf WinUI 保留 Xpdf 4.06 的 PDF 解析和 Splash 渲染能力，但不再使
 - `native/`：连接 WinUI 和 Xpdf 的 C ABI 原生桥接层
 - `msi/`：WiX 5 MSI 安装包定义
 - `build.ps1`：构建原生 DLL 和 WinUI 应用
-- `package-msi.ps1`：发布、签名并生成 MSI
+- `package-msi.ps1`：发布并生成 MSI，可选使用 PFX 签名
 - `integrate.ps1`：把本仓库集成到原版 Xpdf 源码树
 
 本仓库不包含上游 Xpdf 源码，也不包含 Xpdf 的 Qt 界面代码。
@@ -53,7 +53,7 @@ XPDF-WinUI/
 │  └─ tests/                   # 原生桥接层测试
 ├─ msi/                        # WiX MSI 安装包定义
 ├─ build.ps1                   # 构建原生 DLL 和 WinUI 应用
-├─ package-msi.ps1             # 发布、签名并生成 MSI
+├─ package-msi.ps1             # 发布并生成 MSI，可选签名
 ├─ integrate.ps1               # 集成到原版 Xpdf 源码树
 └─ LICENSE                     # GPL v3
 ```
@@ -164,6 +164,8 @@ endif ()
 
 ### 4. 构建应用
 
+确保 `cmake`、`ctest`、`dotnet` 已经在 `PATH` 中。使用 Ninja 时还需要 `ninja`。
+
 在 Xpdf 源码根目录运行：
 
 ```powershell
@@ -180,6 +182,14 @@ endif ()
 
 ### 5. 生成 MSI
 
+确保已经安装 WiX 5：
+
+```powershell
+dotnet tool install --global wix --version 5.0.2
+```
+
+生成未签名的 MSI：
+
 ```powershell
 .\xpdf-winui\package-msi.ps1 -Configuration Release -Platform x64
 ```
@@ -188,11 +198,7 @@ endif ()
 
 ```text
 artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
-├─ XPDF-WinUI_0.0.0.1_x64.msi
-├─ XPDF-WinUI_Test.cer
-├─ Install-Certificate.ps1
-├─ Install-XPDF-WinUI.ps1
-└─ README.txt
+└─ XPDF-WinUI_0.0.0.1_x64.msi
 ```
 
 ## 构建要求
@@ -204,14 +210,7 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
 - 与编译器匹配的 FreeType 开发库
 - Windows App SDK NuGet 依赖
 
-适配层目录或 Xpdf 源码根目录下的 `.tools` 可以放置本地工具链和依赖。存在以下目录时，构建脚本会自动使用：
-
-- `.tools\cmake`
-- `.tools\dotnet`
-- `.tools\nuget`
-- `.tools\freetype`
-
-如果使用仓库自带的 FreeType，默认会选择 Ninja 和 MSYS2 UCRT64 编译器。使用其他编译器时，需要提供匹配的 FreeType：
+构建脚本不会自动下载工具。请把 `cmake`、`ctest`、`dotnet` 和可选的 `ninja` 加入 `PATH`。如果 CMake 不能自动找到 FreeType，需要通过 `-FreetypeDir` 指定：
 
 ```powershell
 .\xpdf-winui\build.ps1 `
@@ -222,7 +221,7 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
   -Platform x64
 ```
 
-如果编译出的原生 DLL 依赖 GCC 运行时，可以显式复制这些 DLL：
+如果编译出的原生 DLL 依赖 GCC 运行时，需要显式指定要复制的 DLL：
 
 ```powershell
 .\xpdf-winui\build.ps1 `
@@ -244,7 +243,7 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
 .\xpdf-winui\build.ps1 -Configuration Release -Platform x64 -NoRestore
 ```
 
-## 使用正式证书签名
+## 签名
 
 如果已经有代码签名 PFX：
 
@@ -254,7 +253,7 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
   -CertificatePassword '<pfx-password>'
 ```
 
-脚本会自动检测并使用该证书，同时保留时间戳签名。`-CertificateSubject` 只用于自动生成测试证书，不会限制外部证书的主题。
+脚本会使用该 PFX 签名，并在联网时添加 SHA-256 时间戳。未传 `-CertificatePath` 时只生成未签名 MSI。
 
 离线构建时可以跳过时间戳：
 

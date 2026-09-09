@@ -81,29 +81,6 @@
         Value="" />
       <RegistryValue
         Root="HKLM"
-        Key="Software\Classes\Applications\XpdfReader.WinUI.exe"
-        Name="FriendlyAppName"
-        Type="string"
-        Value="$(var.ProductName)" />
-      <RegistryValue
-        Root="HKLM"
-        Key="Software\Classes\Applications\XpdfReader.WinUI.exe"
-        Name="ApplicationCompany"
-        Type="string"
-        Value="$(var.Manufacturer)" />
-      <RegistryValue
-        Root="HKLM"
-        Key="Software\Classes\Applications\XpdfReader.WinUI.exe\SupportedTypes"
-        Name=".pdf"
-        Type="string"
-        Value="" />
-      <RegistryValue
-        Root="HKLM"
-        Key="Software\Classes\Applications\XpdfReader.WinUI.exe\shell\open\command"
-        Type="string"
-        Value="&quot;[INSTALLFOLDER]XpdfReader.WinUI.exe&quot; &quot;%1&quot;" />
-      <RegistryValue
-        Root="HKLM"
         Key="Software\RegisteredApplications"
         Name="$(var.ProductName)"
         Type="string"

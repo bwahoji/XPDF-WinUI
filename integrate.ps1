@@ -33,7 +33,7 @@ $optionLine = 'option(XPDF_BUILD_WINUI "Build the native bridge for the WinUI 3 
 $winuiBlock = @"
 if (XPDF_BUILD_WINUI)
   include(CTest)
-  add_subdirectory($relativeAdapter/native)
+  add_subdirectory("$relativeAdapter/native")
 endif ()
 "@
 

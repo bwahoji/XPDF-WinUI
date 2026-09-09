@@ -1,20 +1,33 @@
 # Xpdf WinUI
 
-XpdfReader 是优秀的 PDF 阅读器，老旧的 Qt UI 除外。本项目旨在将 Xpdf 适配到现代的 WinUI 3 界面。
+XpdfReader 是优秀的 PDF 阅读器，老旧的 Qt UI 除外。本项目旨在将 Xpdf 适配到现代的 WinUI 3 界面。（这个项目和 Xpdf 官方没有任何关系！）
 
 本项目在 Codex 的辅助下完成。
 
-> 这是一个非官方项目，与 Xpdf 的版权所有者 Glyph & Cog, LLC 没有隶属关系。
->
-> 本仓库只包含 WinUI 3 适配层，不包含 Xpdf 上游源码。构建时需要先准备原版 Xpdf 4.06 源码。
-
 ## 项目简介
 
-Xpdf WinUI 保留 Xpdf 4.06 的 PDF 解析和 Splash 渲染能力，但不再使用旧的 Qt 界面。桌面端界面使用 C#、.NET 8 和 WinUI 3 重写，并通过一个很薄的 C ABI 原生桥接层调用 Xpdf。
+本项目基于 Xpdf 4.06，保留了其解析与渲染能力，只是在其基础上将 Qt 界面替换为了 WinUI 3。WinUI 3 的部分通过一层桥接层来调用 Xpdf。由于本项目含有许许多多的 AI 生成内容并且开发时间很短，所以问题大概率也不少。
 
-项目目前处于早期阶段，主要目标是把 Xpdf 稳定地运行在现代 Windows 桌面界面上，并保持原生渲染性能。
+## 现在能做什么？
 
-## 本仓库包含什么
+- 打开 PDF
+  - 密码保护也可以打开
+  - 可以拖进去也可以选择（好基本啊）
+- ~~关掉 PDF（废话）~~
+- XpdfReader 原本就有的五种显示模式（这也是我开始用 XpdfReader 的原因）：
+  - 单页
+  - 双页
+  - 单页垂直连续
+  - 双页垂直连续
+  - **水平连续**
+- 大小调整（目前还没有自由调整，只有几种固定模式，抱歉啦）
+- 页面的旋转和跳转（十分基本）
+- 文档内文本搜索复制（还没有测试过，因为手头全是扫描版课本……）
+- 能显示大纲和页面的侧边栏（现在大纲还有些显示问题）
+
+## 这里都有些什么？
+
+以下是 AI 生成的目录介绍：
 
 - `XpdfReader.WinUI/`：WinUI 3 桌面应用
 - `native/`：连接 WinUI 和 Xpdf 的 C ABI 原生桥接层
@@ -23,42 +36,70 @@ Xpdf WinUI 保留 Xpdf 4.06 的 PDF 解析和 Splash 渲染能力，但不再使
 - `package-msi.ps1`：发布并生成 MSI，可选使用 PFX 签名
 - `integrate.ps1`：把本仓库集成到原版 Xpdf 源码树
 
-本仓库不包含上游 Xpdf 源码，也不包含 Xpdf 的 Qt 界面代码。
+如上，这里并没有 Xpdf 的源码，只有 WinUI 的部分。
 
-## 主要功能
+## 如何构建？
 
-- 打开本地 PDF 文件，也支持命令行传入 PDF 路径
-- 多标签页阅读，每个标签页独立保存页码、缩放、旋转和显示模式
-- 单页、垂直连续、双页单页、双页连续、水平连续等显示模式
-- 适应页面、适应宽度、25% 到 400% 缩放
-- 页面旋转、页码跳转、上一页和下一页
-- PDF 文本搜索和复制
-- 文档大纲和页面缩略图侧边栏
-- 密码保护的 PDF 支持重试输入密码
-- 拖放打开 PDF
-- 一体化标题栏，标签页和窗口控制按钮位于同一行
+就像上面两行的位置说的那样，这里并没有 Xpdf 的源码，所以请自行下载。
 
-## 项目结构
-
-```text
-XPDF-WinUI/
-├─ XpdfReader.WinUI/           # WinUI 3 桌面应用
-│  ├─ App.xaml                 # 应用入口和全局资源
-│  ├─ MainWindow.xaml          # 主窗口、标签页、工具栏和侧边栏
-│  ├─ MainWindow.xaml.cs       # 阅读器界面逻辑
-│  └─ Services/                # PDF 文档封装和标签页状态
-├─ native/                     # C ABI 原生桥接层
-│  ├─ xpdf_winui_native.h      # 导出的 C 接口
-│  ├─ xpdf_winui_native.cc     # Xpdf 调用、渲染和文本提取实现
-│  └─ tests/                   # 原生桥接层测试
-├─ msi/                        # WiX MSI 安装包定义
-├─ build.ps1                   # 构建原生 DLL 和 WinUI 应用
-├─ package-msi.ps1             # 发布并生成 MSI，可选签名
-├─ integrate.ps1               # 集成到原版 Xpdf 源码树
-└─ LICENSE                     # GPL v3
+```
+https://www.xpdfreader.com/
 ```
 
-## 技术架构
+解压出来就是：
+
+```
+Xpdf-4.06/
+├─ CMakeLists.txt
+├─ xpdf/
+├─ splash/
+├─ fofi/
+├─ goo/
+├─ xpdf-qt/
+└─ ...
+```
+
+然后把本仓库克隆到 ``Xpdf-4.06`` 下
+
+```
+cd Xpdf-4.06
+git clone https://github.com/bwahoji/XPDF-WinUI.git xpdf-winui
+```
+
+然后运行仓库里附带的修改脚本，这样可以在原项目的 ``CMakeLists.txt`` 下加入本项目所需要的一些配置。
+
+```
+.\xpdf-winui\integrate.ps1
+```
+
+然后构建就好啦！
+
+```
+.\xpdf-winui\build.ps1 -Configuration Release -Platform x64
+```
+
+在装有 WiX 5 的主机上，还可以生成可安装的 MSI：
+
+```
+.\xpdf-winui\package-msi.ps1 -Configuration Release -Platform x64
+```
+
+输出应该在：
+
+```
+artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
+└─ XPDF-WinUI_0.0.0.1_x64.msi
+```
+
+## 致谢
+
+- Xpdf 及其作者 Glyph & Cog, LLC，谢谢
+- FreeType 字体引擎，谢谢
+- Microsoft WinUI 3 和 Windows App SDK，谢谢
+- WiX Toolset，谢谢
+- Codex 在本项目开发过程中的辅助，谢谢
+
+## 最后附上由 AI 撰写的 “技术架构” 介绍
 
 ### Xpdf 核心
 
@@ -104,197 +145,3 @@ WinUI 版本不使用 `xpdf-qt` 中的 Qt 界面，只复用 Xpdf 的核心库�
 页面尺寸、布局和大纲都会按标签页缓存。连续显示模式下只批量查询一次页面尺寸；单页和双页模式只测量当前可见页面，避免打开大型文档时枚举所有页面。
 
 渲染结果会在窗口缩放或切换侧边栏时复用，不会因为界面重新布局就重新解码页面。对于高分辨率扫描件，页面解码是主要耗时来源，因此阅读器会优先复用已经渲染的位图。
-
-## 配合原版 Xpdf 构建
-
-### 1. 准备 Xpdf 4.06 源码
-
-从 Xpdf 官方网站下载并解压 Xpdf 4.06 源码：
-
-```text
-https://www.xpdfreader.com/
-```
-
-解压后应该能看到：
-
-```text
-Xpdf-4.06/
-├─ CMakeLists.txt
-├─ xpdf/
-├─ splash/
-├─ fofi/
-├─ goo/
-├─ xpdf-qt/
-└─ ...
-```
-
-### 2. 把本仓库放到 Xpdf 源码树中
-
-推荐把本仓库克隆到 Xpdf 源码根目录下的 `xpdf-winui`：
-
-```powershell
-cd Xpdf-4.06
-git clone https://github.com/bwahoji/XPDF-WinUI.git xpdf-winui
-```
-
-如果已经下载了本仓库的 ZIP，也可以把解压后的目录重命名为 `xpdf-winui`，然后放到 Xpdf 源码根目录。
-
-### 3. 集成 CMake
-
-在 Xpdf 源码根目录运行：
-
-```powershell
-.\xpdf-winui\integrate.ps1
-```
-
-脚本会在 `CMakeLists.txt` 中加入 WinUI 构建开关和原生桥接层：
-
-```cmake
-option(XPDF_BUILD_WINUI "Build the native bridge for the WinUI 3 reader" OFF)
-
-if (XPDF_BUILD_WINUI)
-  include(CTest)
-  add_subdirectory(xpdf-winui/native)
-endif ()
-```
-
-如果本仓库目录名不是 `xpdf-winui`，`integrate.ps1` 会自动使用实际目录名。
-
-也可以手动修改 `CMakeLists.txt`：把 `option(...)` 放在 `project(xpdf)` 后面，把 `if (XPDF_BUILD_WINUI) ... endif ()` 放在 `add_subdirectory(xpdf-qt)` 后面。
-
-### 4. 构建应用
-
-确保 `cmake`、`ctest`、`dotnet` 已经在 `PATH` 中。使用 Ninja 时还需要 `ninja`。
-
-在 Xpdf 源码根目录运行：
-
-```powershell
-.\xpdf-winui\build.ps1 -Configuration Release -Platform x64
-```
-
-构建脚本会：
-
-1. 配置顶层 CMake 项目，并启用 `XPDF_BUILD_WINUI=ON`
-2. 编译 `xpdf_winui_native` 原生 DLL
-3. 运行原生桥接层测试
-4. 编译 WinUI 3 应用
-5. 把原生 DLL 和运行时依赖复制到应用输出目录
-
-### 5. 生成 MSI
-
-确保已经安装 WiX 5：
-
-```powershell
-dotnet tool install --global wix --version 5.0.2
-```
-
-生成未签名的 MSI：
-
-```powershell
-.\xpdf-winui\package-msi.ps1 -Configuration Release -Platform x64
-```
-
-输出目录：
-
-```text
-artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
-└─ XPDF-WinUI_0.0.0.1_x64.msi
-```
-
-## 构建要求
-
-- Windows 10 1809 或更高版本
-- .NET 8 SDK
-- CMake 3.10 或更高版本
-- C++17 编译器
-- 与编译器匹配的 FreeType 开发库
-- Windows App SDK NuGet 依赖
-
-构建脚本不会自动下载工具。请把 `cmake`、`ctest`、`dotnet` 和可选的 `ninja` 加入 `PATH`。如果 CMake 不能自动找到 FreeType，需要通过 `-FreetypeDir` 指定：
-
-```powershell
-.\xpdf-winui\build.ps1 `
-  -FreetypeDir D:\deps\freetype `
-  -CompilerBinDir C:\msys64\ucrt64\bin `
-  -Generator Ninja `
-  -Configuration Release `
-  -Platform x64
-```
-
-如果编译出的原生 DLL 依赖 GCC 运行时，需要显式指定要复制的 DLL：
-
-```powershell
-.\xpdf-winui\build.ps1 `
-  -RuntimeDependencyDir C:\msys64\ucrt64\bin `
-  -RuntimeDependencyName libgcc_s_seh-1.dll,libstdc++-6.dll,libwinpthread-1.dll `
-  -Configuration Release `
-  -Platform x64
-```
-
-只构建、不运行测试：
-
-```powershell
-.\xpdf-winui\build.ps1 -Configuration Release -Platform x64 -SkipTests
-```
-
-离线构建已经还原过的项目：
-
-```powershell
-.\xpdf-winui\build.ps1 -Configuration Release -Platform x64 -NoRestore
-```
-
-## 签名
-
-如果已经有代码签名 PFX：
-
-```powershell
-.\xpdf-winui\package-msi.ps1 `
-  -CertificatePath C:\path\to\codesign.pfx `
-  -CertificatePassword '<pfx-password>'
-```
-
-脚本会使用该 PFX 签名，并在联网时添加 SHA-256 时间戳。未传 `-CertificatePath` 时只生成未签名 MSI。
-
-离线构建时可以跳过时间戳：
-
-```powershell
-.\xpdf-winui\package-msi.ps1 -Configuration Release -Platform x64 -NoTimestamp
-```
-
-## 安装
-
-1. 从 GitHub Releases 下载 `XPDF-WinUI_0.0.0.1_x64.msi`。
-2. 双击 MSI，按照安装向导完成安装。
-3. 安装完成后，可以从开始菜单启动 Xpdf WinUI。
-
-安装程序会：
-
-- 将程序安装到 `Program Files\XPDF-WinUI`
-- 创建开始菜单快捷方式
-- 注册 XPDF-WinUI 为可用的 PDF 打开程序
-- 注册 PDF 文件类型图标
-
-安装程序不会强制覆盖用户已经选择的默认 PDF 应用。如果没有设置默认应用，Windows 可能会在首次打开 PDF 时询问使用哪个应用。
-
-## 开发说明
-
-- 原生桥接层的公开接口在 `native/xpdf_winui_native.h`。
-- WinUI 界面逻辑在 `XpdfReader.WinUI/MainWindow.xaml.cs`。
-- MSI 安装逻辑在 `msi/Product.wxs`。
-- 集成逻辑在 `integrate.ps1`。
-
-## 许可证
-
-本项目采用 GNU General Public License version 3，见 `LICENSE`。
-
-上游 Xpdf 采用 GPL v2 或 GPL v3 双许可证，版权归 Glyph & Cog, LLC 所有。本仓库不包含上游 Xpdf 源码，使用时请遵守原项目的许可证。
-
-本项目不是 Xpdf 官方项目，也不提供 Xpdf 商业许可证。
-
-## 致谢
-
-- Xpdf 及其作者 Glyph & Cog, LLC
-- FreeType 字体引擎
-- Microsoft WinUI 3 和 Windows App SDK
-- WiX Toolset
-- Codex 在本项目开发过程中的辅助

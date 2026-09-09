@@ -12,14 +12,6 @@ XpdfReader 是优秀的 PDF 阅读器，老旧的 Qt UI 除外。本项目旨在
 
 Xpdf WinUI 保留 Xpdf 4.06 的 PDF 解析和 Splash 渲染能力，但不再使用旧的 Qt 界面。桌面端界面使用 C#、.NET 8 和 WinUI 3 重写，并通过一个很薄的 C ABI 原生桥接层调用 Xpdf。
 
-当前版本：
-
-- 版本号：`0.0.0.1`
-- 平台：Windows 10 1809 或更高版本
-- 架构：x64
-- 发布方式：直接分发 MSI
-- 许可证：GPL v3
-
 项目目前处于早期阶段，主要目标是把 Xpdf 稳定地运行在现代 Windows 桌面界面上，并保持原生渲染性能。
 
 ## 本仓库包含什么
@@ -31,7 +23,7 @@ Xpdf WinUI 保留 Xpdf 4.06 的 PDF 解析和 Splash 渲染能力，但不再使
 - `package-msi.ps1`：发布、签名并生成 MSI
 - `integrate.ps1`：把本仓库集成到原版 Xpdf 源码树
 
-本仓库不包含 `xpdf/`、`splash/`、`fofi/`、`goo/`、`xpdf-qt/` 等上游 Xpdf 源码，也不包含 Xpdf 的 Qt 界面代码。
+本仓库不包含上游 Xpdf 源码，也不包含 Xpdf 的 Qt 界面代码。
 
 ## 主要功能
 
@@ -272,8 +264,6 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
 
 ## 安装
 
-正式发布包是 x64 的 MSI 安装包，安装范围为当前计算机。
-
 1. 从 GitHub Releases 下载 `XPDF-WinUI_0.0.0.1_x64.msi`。
 2. 双击 MSI，按照安装向导完成安装。
 3. 安装完成后，可以从开始菜单启动 Xpdf WinUI。
@@ -286,14 +276,6 @@ artifacts\winui\package\XPDF-WinUI_0.0.0.1_x64\
 - 注册 PDF 文件类型图标
 
 安装程序不会强制覆盖用户已经选择的默认 PDF 应用。如果没有设置默认应用，Windows 可能会在首次打开 PDF 时询问使用哪个应用。
-
-当前自动生成的安装包使用自签名测试证书。安装前需要先运行发布目录中的：
-
-```powershell
-.\Install-Certificate.ps1
-```
-
-正式公开分发时，应使用公网受信任的代码签名证书重新签名，避免 Windows SmartScreen 提示未知发布者。
 
 ## 开发说明
 

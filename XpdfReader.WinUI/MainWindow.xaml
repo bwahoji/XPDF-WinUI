@@ -1,0 +1,256 @@
+<Window
+    x:Class="XpdfReader.WinUI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Xpdf">
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+          AllowDrop="True" DragOver="RootGrid_DragOver" Drop="RootGrid_Drop"
+          Loaded="RootGrid_Loaded" KeyboardAcceleratorPlacementMode="Hidden">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="O" Modifiers="Control" Invoked="OpenAccelerator_Invoked" />
+            <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="CloseAccelerator_Invoked" />
+            <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="FindAccelerator_Invoked" />
+            <KeyboardAccelerator Key="PageUp" Invoked="PreviousAccelerator_Invoked" />
+            <KeyboardAccelerator Key="PageDown" Invoked="NextAccelerator_Invoked" />
+            <KeyboardAccelerator Key="R" Modifiers="Control" Invoked="RotateAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Escape" Invoked="EscapeAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Integrated title bar: document tabs and window controls share one row. -->
+        <Grid x:Name="TitleBarRow" Grid.Row="0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+              Padding="8,0,0,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition x:Name="CaptionButtonsSpacer" Width="0" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                          HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled"
+                          HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+                <StackPanel x:Name="TabStrip" Orientation="Horizontal" Spacing="4"
+                            VerticalAlignment="Center" />
+            </ScrollViewer>
+            <Button x:Name="AddTabButton" Grid.Column="1" Click="AddTabButton_Click"
+                    Width="32" Height="32" Padding="0" Margin="8,0,8,0"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    VerticalAlignment="Center" ToolTipService.ToolTip="New tab"
+                    AutomationProperties.Name="New tab">
+                <FontIcon Glyph="&#xE710;" FontSize="14" />
+            </Button>
+        </Grid>
+
+        <!-- Aligned toolbar. -->
+        <Grid x:Name="ToolbarRow" Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+              Padding="8,2,8,6">
+            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <Button x:Name="SidebarToggle" Click="SidebarToggle_Click" Width="44" Height="36"
+                        ToolTipService.ToolTip="Show or hide the sidebar"
+                        AutomationProperties.Name="Toggle sidebar">
+                    <FontIcon Glyph="&#xE700;" FontSize="16" />
+                </Button>
+                <AppBarSeparator />
+                <Button x:Name="OpenButton" Click="OpenButton_Click" Width="44" Height="36"
+                        ToolTipService.ToolTip="Open PDF" AutomationProperties.Name="Open">
+                    <SymbolIcon Symbol="OpenFile" />
+                </Button>
+                <Button x:Name="CloseButton" Click="CloseButton_Click" Width="44" Height="36"
+                        IsEnabled="False" ToolTipService.ToolTip="Close document"
+                        AutomationProperties.Name="Close document">
+                    <SymbolIcon Symbol="Cancel" />
+                </Button>
+                <AppBarSeparator />
+                <Button x:Name="PreviousButton" Click="PreviousButton_Click" Width="44" Height="36"
+                        IsEnabled="False" ToolTipService.ToolTip="Previous page"
+                        AutomationProperties.Name="Previous page">
+                    <SymbolIcon Symbol="Back" />
+                </Button>
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="4,0,4,0">
+                    <TextBox x:Name="PageNumberBox" Width="64" Text="0" IsEnabled="False"
+                             TextAlignment="Center" InputScope="Number" KeyDown="PageNumberBox_KeyDown"
+                             LostFocus="PageNumberBox_LostFocus" AutomationProperties.Name="Page number" />
+                    <TextBlock x:Name="PageCountText" Text="/ 0" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button x:Name="NextButton" Click="NextButton_Click" Width="44" Height="36"
+                        IsEnabled="False" ToolTipService.ToolTip="Next page"
+                        AutomationProperties.Name="Next page">
+                    <SymbolIcon Symbol="Forward" />
+                </Button>
+                <AppBarSeparator />
+                <ComboBox x:Name="ZoomSelector" Width="136" Margin="4,0,4,0" VerticalAlignment="Center"
+                          SelectedIndex="0" IsEnabled="False" SelectionChanged="ZoomSelector_SelectionChanged"
+                          AutomationProperties.Name="Zoom">
+                    <ComboBoxItem Content="Fit page" />
+                    <ComboBoxItem Content="Fit width" />
+                    <ComboBoxItem Content="25%" />
+                    <ComboBoxItem Content="50%" />
+                    <ComboBoxItem Content="75%" />
+                    <ComboBoxItem Content="100%" />
+                    <ComboBoxItem Content="125%" />
+                    <ComboBoxItem Content="150%" />
+                    <ComboBoxItem Content="200%" />
+                    <ComboBoxItem Content="300%" />
+                    <ComboBoxItem Content="400%" />
+                </ComboBox>
+                <ComboBox x:Name="DisplayModeSelector" Width="190" Margin="4,0,4,0" VerticalAlignment="Center"
+                          SelectedIndex="0" IsEnabled="False" SelectionChanged="DisplayModeSelector_SelectionChanged"
+                          AutomationProperties.Name="Display mode">
+                    <ComboBoxItem Content="Single page" />
+                    <ComboBoxItem Content="Vertical continuous" />
+                    <ComboBoxItem Content="Side-by-side single" />
+                    <ComboBoxItem Content="Side-by-side continuous" />
+                    <ComboBoxItem Content="Horizontal continuous" />
+                </ComboBox>
+                <AppBarSeparator />
+                <Button x:Name="RotateButton" Click="RotateButton_Click" Width="44" Height="36"
+                        IsEnabled="False" ToolTipService.ToolTip="Rotate clockwise"
+                        AutomationProperties.Name="Rotate">
+                    <SymbolIcon Symbol="Rotate" />
+                </Button>
+                <ToggleButton x:Name="FindToggle" Checked="FindToggle_Changed" Unchecked="FindToggle_Changed"
+                              Width="44" Height="36"
+                              IsEnabled="False" ToolTipService.ToolTip="Find in document"
+                              AutomationProperties.Name="Find">
+                    <SymbolIcon Symbol="Find" />
+                </ToggleButton>
+                <ToggleButton x:Name="TextPaneToggle" Checked="TextPaneToggle_Changed" Unchecked="TextPaneToggle_Changed"
+                              Width="44" Height="36"
+                              IsEnabled="False" ToolTipService.ToolTip="Page text"
+                              AutomationProperties.Name="Page text">
+                    <SymbolIcon Symbol="Page" />
+                </ToggleButton>
+                <Button x:Name="CopyTextButton" Click="CopyTextButton_Click" Width="44" Height="36"
+                        IsEnabled="False" ToolTipService.ToolTip="Copy page text"
+                        AutomationProperties.Name="Copy page text">
+                    <SymbolIcon Symbol="Copy" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="SearchBar" Grid.Row="2" Visibility="Collapsed" Padding="12,4,12,10" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchBox" PlaceholderText="Find in document" MaxWidth="420"
+                     HorizontalAlignment="Left" MinWidth="120" KeyDown="SearchBox_KeyDown"
+                     TextChanged="SearchBox_TextChanged" AutomationProperties.Name="Search text" />
+            <Button x:Name="FindNextButton" Grid.Column="1" Click="FindNextButton_Click" IsEnabled="False"
+                    ToolTipService.ToolTip="Find next" AutomationProperties.Name="Find next">
+                <SymbolIcon Symbol="Forward" />
+            </Button>
+            <Button Grid.Column="2" Click="CloseSearchButton_Click" ToolTipService.ToolTip="Close search"
+                    AutomationProperties.Name="Close search">
+                <SymbolIcon Symbol="Cancel" />
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="3" Background="{ThemeResource LayerOnAcrylicFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="SidebarColumn" Width="0" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar: outline tree and page thumbnails. -->
+            <Grid x:Name="Sidebar" Grid.Column="0" Width="256"
+                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Padding="8,6" ColumnSpacing="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ToggleButton x:Name="OutlineModeToggle" Content="Outline" Padding="10,4"
+                                  Click="SidebarModeToggle_Click" />
+                    <ToggleButton x:Name="ThumbnailsModeToggle" Grid.Column="1" Content="Pages" Padding="10,4"
+                                  Click="SidebarModeToggle_Click" />
+                </Grid>
+                <TreeView x:Name="OutlineTree" Grid.Row="1" Padding="8,0"
+                          ItemInvoked="OutlineTree_ItemInvoked" />
+                <ListView x:Name="ThumbnailsList" Grid.Row="1" Padding="8,0" Visibility="Collapsed"
+                          SelectionMode="Single" ContainerContentChanging="ThumbnailsList_ContainerContentChanging"
+                          SelectionChanged="ThumbnailsList_SelectionChanged">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4" Margin="0,0,0,8">
+                                <Image Source="{Binding Image}" Width="72" Height="96"
+                                       Stretch="Uniform" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Page}" VerticalAlignment="Center"
+                                           AutomationProperties.Name="{Binding PageLabel}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+
+            <Grid x:Name="DocumentArea" Grid.Column="1" Background="{ThemeResource LayerOnAcrylicFillColorDefaultBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition x:Name="TextPaneColumn" Width="0" />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer x:Name="PageScrollViewer" HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto" ZoomMode="Disabled"
+                              HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
+                              SizeChanged="PageScrollViewer_SizeChanged" ViewChanged="PageScrollViewer_ViewChanged"
+                              Visibility="Collapsed">
+                    <Canvas x:Name="PageCanvas" MinWidth="1" MinHeight="1" />
+                </ScrollViewer>
+                <StackPanel x:Name="EmptyState" Spacing="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE8A5;" FontSize="40" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyStateTitle" Text="No document open" FontSize="24"
+                               FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyStateMessage" Text="Open a PDF to start reading."
+                               HorizontalAlignment="Center" TextAlignment="Center" Opacity="0.75" />
+                    <Button Click="OpenButton_Click" HorizontalAlignment="Center" Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="OpenFile" />
+                            <TextBlock Text="Open PDF" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <Grid x:Name="TextPane" Grid.Column="1" Visibility="Collapsed" Padding="12" RowSpacing="8"
+                      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <TextBlock Text="Page text" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <Button HorizontalAlignment="Right" Click="CloseTextPaneButton_Click"
+                                AutomationProperties.Name="Close page text" ToolTipService.ToolTip="Close page text">
+                            <SymbolIcon Symbol="Cancel" />
+                        </Button>
+                    </Grid>
+                    <TextBox x:Name="PageTextBox" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True"
+                             TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             AutomationProperties.Name="Extracted page text" />
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="4" Padding="12,6" ColumnSpacing="8" MinHeight="34"
+              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ProgressRing x:Name="BusyIndicator" Width="18" Height="18" IsActive="False" Visibility="Collapsed" />
+            <TextBlock x:Name="StatusText" Grid.Column="1" Text="No document open" FontSize="12"
+                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                       AutomationProperties.LiveSetting="Polite" />
+            <TextBlock x:Name="ZoomText" Grid.Column="2" FontSize="12" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</Window>

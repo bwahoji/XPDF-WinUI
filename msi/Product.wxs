@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package
+    Name="$(var.ProductName)"
+    Manufacturer="$(var.Manufacturer)"
+    Version="$(var.ProductVersion)"
+    ProductCode="$(var.ProductCode)"
+    UpgradeCode="$(var.UpgradeCode)"
+    Language="1033"
+    Scope="perMachine"
+    Compressed="yes"
+    InstallerVersion="500">
+
+    <MajorUpgrade
+      AllowSameVersionUpgrades="no"
+      DowngradeErrorMessage="A newer version of XPDF-WinUI is already installed." />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="XpdfIcon" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="XpdfIcon" />
+    <Property Id="ARPCONTACT" Value="$(var.Manufacturer)" />
+    <Property Id="ARPCOMMENTS" Value="$(var.Description)" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="$(var.ProductName)" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ProgramMenuDir" Name="$(var.ProductName)" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(var.PublishDir)\**" />
+    </ComponentGroup>
+
+    <Component Id="StartMenuShortcut" Directory="ProgramMenuDir" Guid="A2C6F3D4-5E7B-4A1C-9D2E-8F0A1B2C3D4E">
+      <Shortcut
+        Id="StartMenuShortcut"
+        Name="$(var.ProductName)"
+        Description="$(var.Description)"
+        Target="[INSTALLFOLDER]XpdfReader.WinUI.exe"
+        WorkingDirectory="INSTALLFOLDER"
+        Icon="XpdfIcon" />
+      <RemoveFolder Id="RemoveProgramMenuDir" On="uninstall" />
+      <RegistryValue
+        Root="HKMU"
+        Key="Software\Bwahoji\XPDF-WinUI"
+        Name="StartMenuShortcut"
+        Type="integer"
+        Value="1"
+        KeyPath="yes" />
+    </Component>
+
+    <Component Id="PdfFileAssociation" Directory="INSTALLFOLDER" Guid="B3D7E4F5-6A8C-4B2D-9E3F-0A1B2C3D4E5F">
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\XPDF-WinUI.pdf"
+        Type="string"
+        Value="PDF Document"
+        KeyPath="yes" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\XPDF-WinUI.pdf\DefaultIcon"
+        Type="string"
+        Value="[INSTALLFOLDER]XpdfReader.WinUI.exe,0" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\XPDF-WinUI.pdf\shell\open\command"
+        Type="string"
+        Value="&quot;[INSTALLFOLDER]XpdfReader.WinUI.exe&quot; &quot;%1&quot;" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\.pdf\OpenWithProgids"
+        Name="XPDF-WinUI.pdf"
+        Type="string"
+        Value="" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\Applications\XpdfReader.WinUI.exe"
+        Name="FriendlyAppName"
+        Type="string"
+        Value="$(var.ProductName)" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\Applications\XpdfReader.WinUI.exe"
+        Name="ApplicationCompany"
+        Type="string"
+        Value="$(var.Manufacturer)" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\Applications\XpdfReader.WinUI.exe\SupportedTypes"
+        Name=".pdf"
+        Type="string"
+        Value="" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Classes\Applications\XpdfReader.WinUI.exe\shell\open\command"
+        Type="string"
+        Value="&quot;[INSTALLFOLDER]XpdfReader.WinUI.exe&quot; &quot;%1&quot;" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\RegisteredApplications"
+        Name="$(var.ProductName)"
+        Type="string"
+        Value="Software\Bwahoji\XPDF-WinUI\Capabilities" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Bwahoji\XPDF-WinUI\Capabilities"
+        Name="ApplicationName"
+        Type="string"
+        Value="$(var.ProductName)" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Bwahoji\XPDF-WinUI\Capabilities"
+        Name="ApplicationDescription"
+        Type="string"
+        Value="$(var.Description)" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Bwahoji\XPDF-WinUI\Capabilities"
+        Name="ApplicationIcon"
+        Type="string"
+        Value="[INSTALLFOLDER]XpdfReader.WinUI.exe,0" />
+      <RegistryValue
+        Root="HKLM"
+        Key="Software\Bwahoji\XPDF-WinUI\Capabilities\FileAssociations"
+        Name=".pdf"
+        Type="string"
+        Value="XPDF-WinUI.pdf" />
+    </Component>
+
+    <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="PdfFileAssociation" />
+    </Feature>
+  </Package>
+</Wix>

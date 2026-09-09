@@ -1,0 +1,12 @@
+.tools/
+.wix/
+artifacts/
+build/
+build-*/
+**/bin/
+**/obj/
+.vs/
+*.user
+*.pfx
+*.snk
+certificate-password.txt

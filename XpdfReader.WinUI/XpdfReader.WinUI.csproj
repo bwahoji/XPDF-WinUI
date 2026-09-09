@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>XpdfReader.WinUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>../../xpdf-qt/xpdf-icon.ico</ApplicationIcon>
+    <AssemblyTitle>XPDF-WinUI</AssemblyTitle>
+    <Product>XPDF-WinUI</Product>
+    <Company>Bwahoji</Company>
+    <Authors>Bwahoji</Authors>
+    <Description>A WinUI version of Xpdf Reader</Description>
+    <Version>0.0.0.1</Version>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <Platforms>x64;ARM64</Platforms>
+    <Platform Condition="'$(Platform)' == '' Or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NativeBridgeDir Condition="'$(NativeBridgeDir)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\winui\$(Platform)\$(Configuration)\native</NativeBridgeDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <Content Include="$(NativeBridgeDir)\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\COPYING;..\..\COPYING3;..\..\README" Link="Licenses\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckNativeBridge" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Condition="!Exists('$(NativeBridgeDir)\xpdf_winui_native.dll')" Text="The Xpdf native bridge is missing. Run xpdf-winui/build.ps1 first, or set NativeBridgeDir to the matching native DLL directory." />
+  </Target>
+  <Target Name="CopyNativeBridge" AfterTargets="Build" Condition="Exists('$(NativeBridgeDir)\xpdf_winui_native.dll')">
+    <ItemGroup>
+      <_NativeBridgeFiles Include="$(NativeBridgeDir)\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NativeBridgeFiles)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
